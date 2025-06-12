@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-h85)^y44*%uqdrt1g-zd506i4rri%*)b1=)40ua)np&ny2=!^k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -133,3 +133,4 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 DATE_FORMAT = "%d/%m/%Y"
+AUTH_USER_MODEL = 'core.User'
