@@ -1,6 +1,9 @@
+from datetime import date, timedelta
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from campus.core.models import User, Document, AcademicInfo
+
+from campus.core.models import AcademicInfo, Course, Document, User
 
 
 @admin.register(User)
@@ -18,16 +21,13 @@ class CustomUserAdmin(UserAdmin):
         return qs.filter(id=request.user.id)
 
     def has_change_permission(self, request, obj=None):
-        # Allow superuser or coordinator to edit anyone
         if request.user.is_superuser or request.user.role == 'coordinator':
             return True
-        # Allow regular user to edit only their own profile
         if obj is not None and obj.id != request.user.id:
             return False
         return True
 
     def has_view_permission(self, request, obj=None):
-        # Same logic as above
         if request.user.is_superuser or request.user.role == 'coordinator':
             return True
         if obj is not None and obj.id != request.user.id:
@@ -35,10 +35,22 @@ class CustomUserAdmin(UserAdmin):
         return True
 
     def get_readonly_fields(self, request, obj=None):
-        # Prevent normal users from changing their own role or other sensitive fields
+        base_readonly = super().get_readonly_fields(request, obj)
+
         if request.user.is_superuser or request.user.role == 'coordinator':
-            return super().get_readonly_fields(request, obj)
-        return super().get_readonly_fields(request, obj) + ('role', 'is_superuser', 'is_staff', 'user_permissions', 'groups')
+            return base_readonly
+
+        academic_fields = (
+            'course',
+            'registration_number',
+            'role',
+            'is_superuser',
+            'is_staff',
+            'user_permissions',
+            'groups',
+        )
+        return base_readonly + academic_fields
+
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
@@ -50,8 +62,26 @@ class DocumentAdmin(admin.ModelAdmin):
         if not obj.pk:
             obj.requester = request.user
         super().save_model(request, obj, form, change)
+
+    def save_model(self, request, obj, form, change):
+        if not obj.pk:
+            obj.requester = request.user
+            obj.estimated_date = date.today() + timedelta(days=5)
+        super().save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        # Ensure requester can't be changed manually
+        readonly = super().get_readonly_fields(request, obj)
+        return readonly + ('requester',)
 @admin.register(AcademicInfo)
 class AcademicInfoAdmin(admin.ModelAdmin):
     list_display = ['user', 'subject', 'status', 'term']
     list_filter = ['term', 'status']
     search_fields = ['user__username', 'subject']
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name')
+    search_fields = ('code', 'name')
+    ordering = ('name',)
