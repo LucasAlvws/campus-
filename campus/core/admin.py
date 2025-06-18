@@ -70,9 +70,16 @@ class DocumentAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def get_readonly_fields(self, request, obj=None):
-        # Ensure requester can't be changed manually
         readonly = super().get_readonly_fields(request, obj)
-        return readonly + ('requester',)
+        base_fields = ('requester', 'estimated_date')
+
+        # file field only editable by superusers
+        if not request.user.is_superuser:
+            base_fields += ('file',)
+            base_fields += ('status',)
+            base_fields += ('estimated_date',)
+
+        return readonly + base_fields
 @admin.register(AcademicInfo)
 class AcademicInfoAdmin(admin.ModelAdmin):
     list_display = ['user', 'subject', 'status', 'term']
