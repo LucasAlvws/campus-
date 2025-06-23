@@ -5,7 +5,9 @@ from django.contrib.auth.admin import UserAdmin
 
 from campus.core.models import AcademicInfo, Course, Document, User
 
-
+# TODAS AS VIEWS JA PRE-CONTRUIDAS PELO DJANGO E APENAS PERSONALIZADAS PARA COMPORTAR OS PERMISSIONAMENTO
+# DESCRITOS NOS CASOS DE USO E TAMBÉM O CRUD INTEIRO DO SISTEMA.
+# O LOGIN JA É PRE-CONSTRUIDO PELO DJANGO E NÃO PRECISOU SER IMPLEMENTADO.
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     model = User

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import FileExtensionValidator
+
+# TODA A CLASSE DE MODELOS QUE SEGUE OS DIAGRMAS DE CLASSE E DE BANCO DE DADOS
 class Course(models.Model):
     code = models.CharField("Código", max_length=10, unique=True)
     name = models.CharField("Nome", max_length=100)
